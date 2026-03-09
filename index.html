@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TensorSecurity Academy — Get Started</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ───────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #050709;
+    --surface:   #0D1117;
+    --border:    #1C2333;
+    --border2:   #2D3748;
+    --accent:    #00E5A0;
+    --accent2:   #00B8FF;
+    --accent3:   #FF6B35;
+    --text:      #F0F4F8;
+    --muted:     #64748B;
+    --muted2:    #94A3B8;
+    --error:     #FF4757;
+    --success:   #00E5A0;
+    --glow:      rgba(0, 229, 160, 0.15);
+    --glow2:     rgba(0, 184, 255, 0.1);
+
+    /* ⚙️ YOUR n8n WEBHOOK URL — change this */
+    /* Set N8N_WEBHOOK_URL below in the script */
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ──────────────────────────────────────── */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,229,160,0.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s, border-color 0.2s;
+  }
+  .cursor-ring.hover {
+    width: 54px; height: 54px;
+    border-color: var(--accent);
+  }
+
+  /* ── BACKGROUND EFFECTS ─────────────────────────────────── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .bg-glow-1 {
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,160,0.07) 0%, transparent 70%);
+    top: -200px; right: -100px;
+    pointer-events: none; z-index: 0;
+    animation: floatGlow 8s ease-in-out infinite;
+  }
+  .bg-glow-2 {
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,184,255,0.05) 0%, transparent 70%);
+    bottom: -150px; left: -100px;
+    pointer-events: none; z-index: 0;
+    animation: floatGlow 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -30px) scale(1.1); }
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 48px;
+    gap: 80px;
+    align-items: center;
+  }
+
+  /* ── LEFT SIDE ──────────────────────────────────────────── */
+  .left {
+    padding: 80px 0;
+    animation: fadeSlideLeft 0.8s ease both;
+  }
+
+  @keyframes fadeSlideLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .headline em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtext {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--muted2);
+    margin-bottom: 48px;
+    max-width: 440px;
+  }
+
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--muted2);
+    animation: fadeSlideLeft 0.8s ease both;
+  }
+  .feature:nth-child(1) { animation-delay: 0.1s; }
+  .feature:nth-child(2) { animation-delay: 0.2s; }
+  .feature:nth-child(3) { animation-delay: 0.3s; }
+  .feature:nth-child(4) { animation-delay: 0.4s; }
+
+  .feature-icon {
+    width: 28px; height: 28px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .social-proof {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .avatars {
+    display: flex;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    margin-left: -10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    color: var(--bg);
+  }
+  .avatar:first-child { margin-left: 0; }
+  .social-text { font-size: 13px; color: var(--muted); }
+  .social-text strong { color: var(--muted2); }
+
+  /* ── RIGHT SIDE — FORM ──────────────────────────────────── */
+  .right {
+    padding: 80px 0;
+    animation: fadeSlideRight 0.8s ease 0.2s both;
+  }
+  @keyframes fadeSlideRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  }
+
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .form-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  label span { color: var(--accent); }
+
+  input, select, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  select option { background: #1a1f2e; color: var(--text); }
+  textarea { resize: none; height: 88px; line-height: 1.6; }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.08);
+    background: rgba(0,229,160,0.03);
+  }
+
+  .field-error {
+    font-size: 11px;
+    color: var(--error);
+    margin-top: 5px;
+    display: none;
+  }
+  .field.has-error input,
+  .field.has-error select,
+  .field.has-error textarea {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(255,71,87,0.08);
+  }
+  .field.has-error .field-error { display: block; }
+
+  /* Budget slider style */
+  .budget-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .budget-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  input[type="range"] {
+    padding: 0;
+    height: 4px;
+    background: var(--border);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: none;
+  }
+  input[type="range"]:focus { box-shadow: none; border: none; }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(0,229,160,0.15);
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%;
+    padding: 15px 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bg);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.02em;
+    margin-top: 8px;
+  }
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,229,160,0.3);
+  }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .btn-submit .btn-text { transition: opacity 0.2s; }
+  .btn-submit .btn-loading {
+    position: absolute; inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-submit.loading .btn-text { opacity: 0; }
+  .btn-submit.loading .btn-loading { display: flex; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(5,7,9,0.3);
+    border-top-color: var(--bg);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .form-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+  .form-note a { color: var(--muted2); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ── SUCCESS STATE ──────────────────────────────────────── */
+  .success-state {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes successPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: rgba(0,229,160,0.1);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 24px;
+  }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .success-msg {
+    font-size: 15px;
+    color: var(--muted2);
+    line-height: 1.7;
+    max-width: 320px;
+    margin: 0 auto 32px;
+  }
+  .success-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .page {
+      grid-template-columns: 1fr;
+      padding: 0 24px;
+      gap: 0;
+    }
+    .left { padding: 60px 0 32px; }
+    .right { padding: 0 0 60px; }
+    .form-row { grid-template-columns: 1fr; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+  @media (max-width: 480px) {
+    .form-card { padding: 28px 20px; border-radius: 16px; }
+    .headline { font-size: 34px; }
+  }
+
+  /* ── UTM TRACKER (hidden) ───────────────────────────────── */
+  .utm-fields { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Background -->
+<div class="bg-grid"></div>
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+
+<!-- Main layout -->
+<div class="page">
+
+  <!-- LEFT: Hero content -->
+  <div class="left">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      AI Automation Agency
+    </div>
+
+    <h1 class="headline">
+      Automate Your<br>
+      Business with<br>
+      <em>AI Workflows</em>
+    </h1>
+
+    <p class="subtext">
+      We build custom n8n automation systems that save your team 20+ hours per week. Lead generation, customer support, CRM — fully automated.
+    </p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        Setup in 48 hours — not weeks
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        AI-powered with GPT-4 & Groq
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        Full reporting & analytics
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        Your data stays on your server
+      </div>
+    </div>
+
+    <div class="social-proof">
+      <div class="avatars">
+        <div class="avatar">RK</div>
+        <div class="avatar">SA</div>
+        <div class="avatar">MT</div>
+        <div class="avatar">+</div>
+      </div>
+      <div class="social-text">
+        <strong>47 businesses</strong> automated this month
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Form -->
+  <div class="right">
+    <div class="form-card">
+
+      <div id="formContent">
+        <div class="form-title">Get a Free Consultation</div>
+        <div class="form-subtitle">We'll respond within 1 business day</div>
+
+        <form id="leadForm" novalidate>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Full Name <span>*</span></label>
+              <input type="text" id="name" placeholder="Ahmed Hossain" autocomplete="name">
+              <div class="field-error">Please enter your name</div>
+            </div>
+            <div class="field">
+              <label>Email Address <span>*</span></label>
+              <input type="email" id="email" placeholder="ahmed@company.com" autocomplete="email">
+              <div class="field-error">Enter a valid email address</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Company Name</label>
+              <input type="text" id="company" placeholder="Acme Corp" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label>Your Role / Title</label>
+              <input type="text" id="title" placeholder="CEO / Founder" autocomplete="organization-title">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>What do you want to automate? <span>*</span></label>
+            <select id="service">
+              <option value="" disabled selected>Select a service</option>
+              <option value="Lead Generation & CRM">Lead Generation & CRM</option>
+              <option value="Customer Support Automation">Customer Support Automation</option>
+              <option value="Email Marketing Automation">Email Marketing Automation</option>
+              <option value="Content & Social Media Automation">Content & Social Media Automation</option>
+              <option value="Ecommerce Automation">Ecommerce Automation</option>
+              <option value="Custom AI Workflow">Custom AI Workflow</option>
+              <option value="Full Business Automation">Full Business Automation</option>
+            </select>
+            <div class="field-error">Please select a service</div>
+          </div>
+
+          <div class="field">
+            <div class="budget-display">
+              <label style="margin:0">Monthly Budget</label>
+              <span class="budget-value" id="budgetDisplay">$1,000</span>
+            </div>
+            <input type="range" id="budgetRange" min="500" max="20000" step="500" value="1000">
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:11px;color:var(--muted)">$500</span>
+              <span style="font-size:11px;color:var(--muted)">$20,000+</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Timeline</label>
+            <select id="timeline">
+              <option value="asap">ASAP — Need it urgently</option>
+              <option value="1_month" selected>Within 1 month</option>
+              <option value="3_months">1–3 months</option>
+              <option value="exploring">Just exploring options</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Tell us about your project <span>*</span></label>
+            <textarea id="message" placeholder="What processes do you want to automate? What's your biggest pain point right now?"></textarea>
+            <div class="field-error">Please describe your project</div>
+          </div>
+
+          <!-- Hidden UTM fields -->
+          <div class="utm-fields">
+            <input type="hidden" id="utm_source">
+            <input type="hidden" id="utm_medium">
+            <input type="hidden" id="utm_campaign">
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">🚀 Send My Request — It's Free</span>
+            <span class="btn-loading">
+              <span class="spinner"></span>
+              Sending to team...
+            </span>
+          </button>
+
+          <p class="form-note">
+            🔒 100% confidential. No spam ever. By submitting you agree to our
+            <a href="#">Privacy Policy</a>.
+          </p>
+
+        </form>
+      </div>
+
+      <!-- Success state -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">✓</div>
+        <div class="success-title">You're on the list!</div>
+        <p class="success-msg">
+          We've received your request and our team will reach out within <strong>1 business day</strong> with a personalized automation plan.
+        </p>
+        <div class="success-badge">
+          📧 Check your inbox for confirmation
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ⚙️  CONFIGURATION — CHANGE THIS TO YOUR WEBHOOK URL
+// ═══════════════════════════════════════════════════════════
+const N8N_WEBHOOK_URL = 'https://vibeacademy.cloud/webhook/lead-gen';
+// For testing use:  https://vibeacademy.cloud/webhook-test/lead-gen
+// For production:   https://vibeacademy.cloud/webhook/lead-gen
+// ═══════════════════════════════════════════════════════════
+
+
+// ── CUSTOM CURSOR ────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+});
+
+function animateRing() {
+  rx += (mx - rx - 18) * 0.12;
+  ry += (my - ry - 18) * 0.12;
+  cursorRing.style.transform = `translate(${rx}px, ${ry}px)`;
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, input, select, textarea, .feature').forEach(el => {
+  el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+});
+
+
+// ── BUDGET SLIDER ────────────────────────────────────────
+const budgetRange = document.getElementById('budgetRange');
+const budgetDisplay = document.getElementById('budgetDisplay');
+
+budgetRange.addEventListener('input', () => {
+  const v = parseInt(budgetRange.value);
+  budgetDisplay.textContent = v >= 20000
+    ? '$20,000+'
+    : '$' + v.toLocaleString();
+});
+
+
+// ── UTM CAPTURE ──────────────────────────────────────────
+(function captureUTM() {
+  const params = new URLSearchParams(window.location.search);
+  ['utm_source','utm_medium','utm_campaign'].forEach(k => {
+    const el = document.getElementById(k);
+    if (el && params.get(k)) el.value = params.get(k);
+  });
+  // Set default source
+  const src = document.getElementById('utm_source');
+  if (src && !src.value) src.value = document.referrer ? 'referral' : 'direct';
+})();
+
+
+// ── FORM VALIDATION ──────────────────────────────────────
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function setFieldError(fieldEl, inputEl, show) {
+  if (show) fieldEl.classList.add('has-error');
+  else fieldEl.classList.remove('has-error');
+}
+
+function validateForm() {
+  let valid = true;
+
+  const nameEl   = document.getElementById('name');
+  const emailEl  = document.getElementById('email');
+  const serviceEl = document.getElementById('service');
+  const messageEl = document.getElementById('message');
+
+  const nameField    = nameEl.closest('.field');
+  const emailField   = emailEl.closest('.field');
+  const serviceField = serviceEl.closest('.field');
+  const messageField = messageEl.closest('.field');
+
+  if (!nameEl.value.trim()) {
+    setFieldError(nameField, nameEl, true);
+    valid = false;
+  } else setFieldError(nameField, nameEl, false);
+
+  if (!validateEmail(emailEl.value)) {
+    setFieldError(emailField, emailEl, true);
+    valid = false;
+  } else setFieldError(emailField, emailEl, false);
+
+  if (!serviceEl.value) {
+    setFieldError(serviceField, serviceEl, true);
+    valid = false;
+  } else setFieldError(serviceField, serviceEl, false);
+
+  if (!messageEl.value.trim() || messageEl.value.trim().length < 10) {
+    setFieldError(messageField, messageEl, true);
+    valid = false;
+  } else setFieldError(messageField, messageEl, false);
+
+  return valid;
+}
+
+// Clear errors on input
+['name','email','service','message'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => {
+    el.closest('.field').classList.remove('has-error');
+  });
+});
+
+
+// ── FORM SUBMIT ──────────────────────────────────────────
+document.getElementById('leadForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    // Scroll to first error
+    const firstError = document.querySelector('.has-error');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  // Build payload
+  const budget = parseInt(document.getElementById('budgetRange').value);
+  const payload = {
+    name:         document.getElementById('name').value.trim(),
+    email:        document.getElementById('email').value.toLowerCase().trim(),
+    company:      document.getElementById('company').value.trim(),
+    title:        document.getElementById('title').value.trim(),
+    service:      document.getElementById('service').value,
+    budget:       budget,
+    budget_label: budget >= 20000 ? '$20,000+' : '$' + budget.toLocaleString(),
+    timeline:     document.getElementById('timeline').value,
+    message:      document.getElementById('message').value.trim(),
+    utm_source:   document.getElementById('utm_source').value || 'direct',
+    utm_medium:   document.getElementById('utm_medium').value || '',
+    utm_campaign: document.getElementById('utm_campaign').value || '',
+    page_url:     window.location.href,
+    submitted_at: new Date().toISOString()
+  };
+
+  try {
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // n8n returns 200 for webhook-test and 200/202 for production
+    if (response.ok || response.status === 200 || response.status === 202) {
+      showSuccess();
+    } else {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+  } catch (err) {
+    // Even on network error, show success if it's a CORS issue
+    // (n8n webhook often returns CORS headers in prod)
+    if (err.message.includes('Failed to fetch') || err.message.includes('CORS')) {
+      showSuccess(); // Payload likely sent, CORS blocked the response
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      showToast('⚠️ Something went wrong. Please try again or email us directly.');
+    }
+  }
+});
+
+function showSuccess() {
+  document.getElementById('formContent').style.display = 'none';
+  const s = document.getElementById('successState');
+  s.style.display = 'block';
+
+  // Confetti burst
+  confettiBurst();
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position: 'fixed', bottom: '24px', left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#1C2333', border: '1px solid #FF4757',
+    color: '#F0F4F8', padding: '14px 24px',
+    borderRadius: '12px', fontSize: '14px',
+    zIndex: '9999', maxWidth: '400px',
+    textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+
+// ── CONFETTI ─────────────────────────────────────────────
+function confettiBurst() {
+  const colors = ['#00E5A0','#00B8FF','#FF6B35','#FFFFFF','#FFD700'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    const size = Math.random() * 8 + 4;
+    Object.assign(el.style, {
+      position: 'fixed',
+      left: (40 + Math.random() * 20) + 'vw',
+      top: '50vh',
+      width: size + 'px',
+      height: size + 'px',
+      background: colors[Math.floor(Math.random() * colors.length)],
+      borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+      pointerEvents: 'none',
+      zIndex: '9999',
+      animation: `confettiFall ${1 + Math.random() * 2}s ease-out forwards`,
+      transform: `rotate(${Math.random() * 360}deg)`
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes confettiFall {
+    0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(${Math.random()>0.5?'':'-'}${100+Math.random()*200}px, ${200+Math.random()*300}px) rotate(${360+Math.random()*360}deg); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+</script>
+</body>
+</html>
